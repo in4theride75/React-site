@@ -28,7 +28,6 @@ function RenderComments({ comments, addComment, campsiteId }) {
             <div className='col-md-5 m-1'>
                 <h4>Comments</h4>
                 {comments.map(comment => {
-                    console.log(JSON.stringify(comment));
                     return (
                         <div key={comment.id}>
                             <p>{comment.text}<br />
@@ -96,7 +95,6 @@ class CommentForm extends React.Component {
     handleSubmit(values) {
         this.toggleModal();
         this.props.addComment(this.props.campsiteId, values.rating, values.author, values.text);
-        alert("Current state is: " + JSON.stringify(values));
     }
 
     render() {
