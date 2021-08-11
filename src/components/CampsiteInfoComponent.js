@@ -22,16 +22,25 @@ function RenderCampsite({ campsite }) {
     );
 }
 
-function RenderComments({ comments }) {
+function RenderComments({ comments, addComment, campsiteId }) {
     if (comments) {
         return (
             <div className='col-md-5 m-1'>
                 <h4>Comments</h4>
-                {comments.map(comment => <div key={comment.id}>
-                    <p>{comment.text}<br />
-                    --{comment.author}, {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(Date.parse(comment.date)))}</p>
-                </div>)}
-                <CommentForm />
+                {comments.map(comment => {
+                    console.log(JSON.stringify(comment));
+                    return (
+                        <div key={comment.id}>
+                            <p>{comment.text}<br />
+                            -- {comment.author}, {new Intl.DateTimeFormat('en-US', {
+                                year: 'numeric',
+                                month: 'short', day: '2-digit'
+                            }).format(new Date(Date.parse(comment.date)))}
+                            </p>
+                        </div>
+                    );
+                })}
+                <CommentForm campsiteId={campsiteId} addComment={addComment} />
             </div>
         )
     }
@@ -56,7 +65,11 @@ function CampsiteInfo(props) {
                 </div>
                 <div className="row">
                     <RenderCampsite campsite={props.campsite} />
-                    <RenderComments comments={props.comments} />
+                    <RenderComments
+                        comments={props.comments}
+                        addComment={props.addComment}
+                        campsiteId={props.campsite.id}
+                    />
                 </div>
             </div>
         );
@@ -81,20 +94,24 @@ class CommentForm extends React.Component {
     }
 
     handleSubmit(values) {
-        console.log("Current state is: " + JSON.stringify(values));
+        this.toggleModal();
+        this.props.addComment(this.props.campsiteId, values.rating, values.author, values.text);
         alert("Current state is: " + JSON.stringify(values));
     }
 
     render() {
         return (
-            <React.Fragment>
+            <div>
+                <Button outline onClick={this.toggleModal}>
+                    <i className="fa fa-pencil fa-lg" /> Submit Comment
+                    </Button>
                 <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
                     <ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
                     <ModalBody>
                         <LocalForm onSubmit={values => this.handleSubmit(values)}>
                             <div className="form-group">
                                 <Label htmlFor="rating">Rating</Label>
-                                <Control.select model=".rating" name="rating" id="rating" className="form-control">
+                                <Control.select model=".rating" name="rating" id="rating" name ="rating" className="form-control">
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                     <option value="3">3</option>
@@ -109,7 +126,8 @@ class CommentForm extends React.Component {
                                         required,
                                         minLength: minLength(2),
                                         maxLength: maxLength(15)
-                                    }} />
+                                    }}
+                                />
                                 <Errors
                                     className="text-danger"
                                     model=".author"
@@ -123,8 +141,8 @@ class CommentForm extends React.Component {
                                 />
                             </div>
                             <div className="form-group">
-                                <Label htmlFor="comment">Comment</Label>
-                                <Control.textarea model=".comment" id="comment" name="comment" rows="6" className="form-control"/>
+                                <Label htmlFor="text">Comment</Label>
+                                <Control.textarea model=".text" id="text" name="text" rows="6" className="form-control"/>
                             </div>
                             <div className="form-group">
                                 <Button type="submit" color="primary">
@@ -134,8 +152,7 @@ class CommentForm extends React.Component {
                         </LocalForm>
                     </ModalBody>
                 </Modal>
-                <Button className="btn btn-secondary-outline fa fa-pencil fa-lg" onClick={this.toggleModal}> Submit Comment</Button>
-            </React.Fragment>
+            </div>
         );
     };
 }
